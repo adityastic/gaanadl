@@ -32,3 +32,6 @@ jobs:
 #         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
         python setup.py install
+    - name: Test Tool
+      run: |
+        gaanadl https://gaana.com/song/dard-e-disco
