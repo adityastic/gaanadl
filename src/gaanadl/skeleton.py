@@ -1,4 +1,5 @@
 import os
+import platform
 import re
 import string
 import subprocess
@@ -42,13 +43,12 @@ def get_contents(deciphered_link):
 
 
 def is_tool(name):
-    try:
-        devnull = open(os.devnull)
-        subprocess.Popen([name], stdout=devnull, stderr=devnull).communicate()
-    except OSError as e:
-        if e.errno == os.errno.ENOENT:
-            return False
-    return True
+    cmd = "where" if platform.system() == "Windows" else "which"
+    rc = subprocess.call([cmd, name])
+    if rc == 0:
+        return True
+    else:
+        return False
 
 
 def download_file(final_down_url, song_id):
