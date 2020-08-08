@@ -10,13 +10,11 @@ from .gaana_argparser import parse_song
 from .gaana_cipher import GaanaCipher
 
 
-def get_song_cipher(song_id):
+def get_song_cipher(song):
     return requests.get(
-        url=f'https://gaana.com/apiv2?seokey={song_id}&type=songdetails&isChrome=1',
-        headers={
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 10;TXY567) AppleWebKit/537'
-                          '.36 (KHTML, like Gecko) Chrome/8399.0.9993.96 Mobile Safari/599.36'
-        }).json()['tracks'][0]['urls']['auto']['message']
+        url=f'https://gaana.com/apiv2?seokey={song}&type=songdetails&isChrome=1', headers={
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10;TXY567) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/8399.0.9993.96 Mobile Safari/599.36'}).json()[
+        'tracks'][0]['urls']['auto']['message']
 
 
 def extract_song_id(song_link):
