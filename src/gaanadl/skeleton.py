@@ -1,113 +1,70 @@
-# -*- coding: utf-8 -*-
-"""
-This is a skeleton file that can serve as a starting point for a Python
-console script. To run this script uncomment the following lines in the
-[options.entry_points] section in setup.cfg:
-
-    console_scripts =
-         fibonacci = gaanadl.skeleton:run
-
-Then run `python setup.py install` which will install the command `fibonacci`
-inside your current environment.
-Besides console scripts, the header (i.e. until _logger...) of this file can
-also be used as template for Python modules.
-
-Note: This skeleton file can be safely removed if not needed!
-"""
-
-import argparse
-import sys
 import logging
+import os
+import re
+import string
+import subprocess
+import sys
 
-from gaanadl import __version__
-
-__author__ = "Aditya Gupta"
-__copyright__ = "Aditya Gupta"
-__license__ = "mit"
+import requests
+from .gaana_argparser import parse_song
+from .gaana_cipher import GaanaCipher
 
 _logger = logging.getLogger(__name__)
 
 
-def fib(n):
-    """Fibonacci example function
-
-    Args:
-      n (int): integer
-
-    Returns:
-      int: n-th Fibonacci number
-    """
-    assert n > 0
-    a, b = 1, 1
-    for i in range(n-1):
-        a, b = b, a+b
-    return a
+def get_song_cipher(song_id):
+    return requests.get(
+        url=f'https://gaana.com/apiv2?seokey={song_id}&type=songdetails&isChrome=1',
+        headers={
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10;TXY567) AppleWebKit/537'
+                          '.36 (KHTML, like Gecko) Chrome/8399.0.9993.96 Mobile Safari/599.36'
+        }).json()['tracks'][0]['urls']['auto']['message']
 
 
-def parse_args(args):
-    """Parse command line parameters
-
-    Args:
-      args ([str]): command line parameters as list of strings
-
-    Returns:
-      :obj:`argparse.Namespace`: command line parameters namespace
-    """
-    parser = argparse.ArgumentParser(
-        description="Just a Fibonacci demonstration")
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="GaanaDL {ver}".format(ver=__version__))
-    parser.add_argument(
-        dest="n",
-        help="n-th Fibonacci number",
-        type=int,
-        metavar="INT")
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="loglevel",
-        help="set loglevel to INFO",
-        action="store_const",
-        const=logging.INFO)
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        dest="loglevel",
-        help="set loglevel to DEBUG",
-        action="store_const",
-        const=logging.DEBUG)
-    return parser.parse_args(args)
+def extract_song_id(song_link):
+    return song_link.split("/")[-1]
 
 
-def setup_logging(loglevel):
-    """Setup basic logging
+def decipher_link(cipher_link):
+    return GaanaCipher().decrypt(cipher_link)
 
-    Args:
-      loglevel (int): minimum loglevel for emitting messages
-    """
-    logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
-    logging.basicConfig(level=loglevel, stream=sys.stdout,
-                        format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
+
+def get_downloadable_url(deciphered_link):
+    grubbers_regex = r'\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^%s\s]|/)))' % re.escape(
+        string.punctuation)
+    pattern = re.compile(grubbers_regex)
+    matched_items = pattern.findall(deciphered_link)
+    if len(matched_items) == 0:
+        raise Exception('Decrypted Song URl is invalid!')
+
+    return matched_items[1][0]
+
+
+def get_contents(deciphered_link):
+    response = requests.get(deciphered_link)
+    return response.content.decode('utf-8')
+
+
+def download_file(final_down_url, song_id):
+    process = subprocess.getstatusoutput(["which", "ffmpeg"])
+    if process[0] != 1:
+        raise Exception('FFMpeg not found, please install it before continuing.'
+                        ' If it is installed, please check if ffmpeg is in $PATH or not')
+
+    os.system(f'ffmpeg -i "{final_down_url}" -y -vn -codec copy "{song_id}.aac"'
+              f'&& ffmpeg -i {song_id}.aac -y -acodec libmp3lame {song_id}.mp3')
+    os.remove(f"{song_id}.aac")
 
 
 def main(args):
-    """Main entry point allowing external calls
-
-    Args:
-      args ([str]): command line parameter list
-    """
-    args = parse_args(args)
-    setup_logging(args.loglevel)
-    _logger.debug("Starting crazy calculations...")
-    print("The {}-th Fibonacci number is {}".format(args.n, fib(args.n)))
-    _logger.info("Script ends here")
+    song_link = parse_song(args)
+    song_id = extract_song_id(song_link)
+    deciphered_link = decipher_link(get_song_cipher(song_id))
+    final_down_url = get_downloadable_url(get_contents(deciphered_link))
+    download_file(final_down_url, song_id)
 
 
 def run():
-    """Entry point for console_scripts
-    """
     main(sys.argv[1:])
 
 
