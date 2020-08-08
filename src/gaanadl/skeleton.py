@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 import string
@@ -6,10 +5,9 @@ import subprocess
 import sys
 
 import requests
+
 from .gaana_argparser import parse_song
 from .gaana_cipher import GaanaCipher
-
-_logger = logging.getLogger(__name__)
 
 
 def get_song_cipher(song_id):
