@@ -41,9 +41,18 @@ def get_contents(deciphered_link):
     return response.content.decode('utf-8')
 
 
+def is_tool(name):
+    try:
+        devnull = open(os.devnull)
+        subprocess.Popen([name], stdout=devnull, stderr=devnull).communicate()
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            return False
+    return True
+
+
 def download_file(final_down_url, song_id):
-    process = subprocess.getstatusoutput(["which", "ffmpeg"])
-    if process[0] != 1:
+    if not is_tool('ffmpeg'):
         raise Exception('FFMpeg not found, please install it before continuing.'
                         ' If it is installed, please check if ffmpeg is in $PATH or not')
 
