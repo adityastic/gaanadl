@@ -7,10 +7,13 @@
 1. [FFMpeg](https://ffmpeg.org)
 2. [Python](https://www.python.org)
 
-## Installing gaanadl
+## Installing
 
-1. `git clone https://github.com/adityastic/gaandadl` to your desired location.
-2. Run `python setup.py install` to install the cli.
+`pip install GaanaDL`
+
+## Usage
+
+`GaanaDL <song_link>` eg: `GaanaDL https://gaana.com/song/dard-e-disco`
 
 ## Setup Environment
 
