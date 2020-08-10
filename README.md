@@ -15,7 +15,7 @@
 ## Setup Environment
 
 1. `git clone https://github.com/adityastic/gaandadl` to your desired location.
-2. [Optional][setup a virtual environment](https://docs.python.org/3/tutorial/venv.html)
+2. [setup a virtual environment](https://docs.python.org/3/tutorial/venv.html) [Optional]
 3. `python setup.py develop` to configure and start developing.
 
 ## License
