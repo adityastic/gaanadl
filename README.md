@@ -1,6 +1,6 @@
 # Gaana.com Downloader CLI
 
-![Python CI](https://github.com/adityastic/gaanadl/workflows/Python%20CI/badge.svg)
+![Python CI](https://github.com/adityastic/gaanadl/workflows/Python%20CI/badge.svg) ![PyPI](https://github.com/adityastic/gaanadl/workflows/PyPI/badge.svg)
 
 ## Pre-Requisites
 
