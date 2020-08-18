@@ -38,7 +38,7 @@ jobs:
           choco install ffmpeg
           
       - name: Install ffmpeg (Linux)
-        if: ${{ matrix.os == 'linux-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get install ffmpeg
           
