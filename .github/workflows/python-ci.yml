@@ -49,3 +49,7 @@ jobs:
       - name: Build
         run: |
           python setup.py install
+          
+      - name: Test Tool
+        run: |
+          gaanadl https://gaana.com/song/dard-e-disco
